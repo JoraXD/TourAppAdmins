@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
 import os
@@ -43,6 +44,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve pre-built frontend if available
+static_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+)
+if os.path.isdir(static_path):
+    app.mount(
+        "/",
+        StaticFiles(directory=static_path, html=True),
+        name="frontend",
+    )
 
 excursions_ref = db.collection("excursions")
 users_ref = db.collection("users")
